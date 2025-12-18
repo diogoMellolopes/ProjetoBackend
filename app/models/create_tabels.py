@@ -8,10 +8,57 @@ sys.path.append(DB_PATH)
 from connect import db
 
 def create_user():
-    sql = text("""CREATE TABLE IT NOT EXISTS Users (userID SERIAL PRIMARY KEY, cpf_login INT NOT NULL UNIQUE, 
-    senha VARCHAR(50) NOT NULL, email VARCHAR(100) NOT NULL, 
-    target_course VARCHAR(50), target_uni VARCHAR(50), cndb INT)""")
+    sql = text("""CREATE TABLE IF NOT EXISTS Users (
+    user_id SERIAL PRIMARY KEY, 
+    cpf_login VARCHAR(11) NOT NULL UNIQUE, 
+    senha VARCHAR(50) NOT NULL, 
+    email VARCHAR(50) NOT NULL, 
+    cndb INT
+    )""")
+
     result = db.session.execute(sql)
     db.session.commit()
 
     return print("Criado tabela usuários com sucesso")
+
+def create_profile():
+    sql = text("""CREATE TABLE IF NOT EXISTS Profiles (
+    profile_id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    foto_perfil BYTEA,
+    curso_desejado VARCHAR(50),
+    universidade_desejada VARCHAR(50),
+    uf VARCHAR(2),
+    cidade VARCHAR(29),
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    )""")
+
+    result = db.session.execute(sql)
+    db.session.commit()
+
+    return print("Criado tabela perfis com sucessos")
+
+def create_essays():
+    sql = text("""CREATE TABLE IF NOT EXISTS Essays (
+    essay_id BIGSERIAL PRIMARY KEY,
+    tema VARCHAR(50) NOT NULL,
+    introducao VARCHAR NOT NULL,
+    desenvolvimento VARCHAR NOT NULL,
+    conclusao VARCHAR NOT NULL,
+    nota INT,
+    status BOOLEAN NOT NULL,
+    user_id INT NOT NULL,
+    avaliacao VARCHAR,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    )""")
+
+    result = db.session.execute(sql)
+    db.session.commit()
+
+    return print("Craida tabela redações com sucesso")
+
+def create_all_tables():
+    create_user()
+    create_profile()
+    create_essays()
