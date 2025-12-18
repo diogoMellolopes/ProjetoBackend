@@ -46,7 +46,7 @@ def create_essays():
     introducao VARCHAR NOT NULL,
     desenvolvimento VARCHAR NOT NULL,
     conclusao VARCHAR NOT NULL,
-    nota INT,
+    nota SMALLINT,
     status BOOLEAN NOT NULL,
     user_id INT NOT NULL,
     avaliacao VARCHAR,
