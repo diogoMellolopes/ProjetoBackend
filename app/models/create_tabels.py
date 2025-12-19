@@ -11,7 +11,7 @@ def create_user():
     sql = text("""CREATE TABLE IF NOT EXISTS Users (
     user_id SERIAL PRIMARY KEY, 
     cpf_login VARCHAR(11) NOT NULL UNIQUE, 
-    senha VARCHAR(50) NOT NULL, 
+    senha VARCHAR NOT NULL, 
     email VARCHAR(50) NOT NULL, 
     cndb INT
     )""")
@@ -24,14 +24,15 @@ def create_user():
 def create_profile():
     sql = text("""CREATE TABLE IF NOT EXISTS Profiles (
     profile_id SERIAL PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL,
+    user_id INTEGER UNIQUE NOT NULL,
     foto_perfil BYTEA,
     curso_desejado VARCHAR(50),
     universidade_desejada VARCHAR(50),
     uf VARCHAR(2),
     cidade VARCHAR(29),
-    user_id INT NOT NULL,
+    nome VARCHAR(50) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE
     )""")
 
     result = db.session.execute(sql)
@@ -43,10 +44,8 @@ def create_essays():
     sql = text("""CREATE TABLE IF NOT EXISTS Essays (
     essay_id BIGSERIAL PRIMARY KEY,
     tema VARCHAR(50) NOT NULL,
-    introducao VARCHAR NOT NULL,
-    desenvolvimento VARCHAR NOT NULL,
-    conclusao VARCHAR NOT NULL,
-    nota SMALLINT,
+    redacao VARCHAR NOT NULL,
+    nota VARCHAR,
     status BOOLEAN NOT NULL,
     user_id INT NOT NULL,
     avaliacao VARCHAR,
