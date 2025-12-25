@@ -55,7 +55,7 @@ def create_essays():
     result = db.session.execute(sql)
     db.session.commit()
 
-    return print("Craida tabela redações com sucesso")
+    return print("Criada tabela redações com sucesso")
 
 def create_all_tables():
     create_user()
