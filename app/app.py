@@ -1,5 +1,4 @@
 from flask import Flask, Blueprint, request, jsonify 
-from flask_sqlalchemy import SQLAlchemy 
 from sqlalchemy import text 
 from connect import init_db, init_bcrypt, init_jwt
 

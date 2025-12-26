@@ -1,6 +1,5 @@
 from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
-from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 import os, sys
 
@@ -26,13 +25,16 @@ def registrar():
     email = request.form.get("email")
 
     if cpf_login == None or senha == None or email == None:
-        return "Por favor insira todas as informações necessárias para o cadastro"
+        return {"msg": "Insira todos os dados necessários"}, 400
+
+    if len(cpf_login) != 11:
+        return {"msg": "O CPF deve conter 11 dígitos"}, 400
 
     for i in cpf_login:
         try:
             int(i)
         except:
-            return "O CPF deve ser composto apenas dos números"
+            return {"msg": "O CPF deve ser composto apenas de números"}, 400
         
     senha_hash = bcrypt.generate_password_hash(senha).decode("utf-8")
 
@@ -51,7 +53,7 @@ def registrar():
     id = result.fetchone()[0]
     dados['id'] = id
 
-    return dados
+    return jsonify(dados), 201
 
 @users_bp.route("/login", methods = ["POST"])
 def logar():
@@ -59,7 +61,7 @@ def logar():
     senha = request.form.get("senha")
 
     if cpf_login == None or senha == None:
-        return "Por favor insira CPF e Senha"
+        return {"msg": "Por favor insira os dados necessários"}, 400
 
     sql = text("SELECT user_id, cpf_login, senha FROM Users WHERE cpf_login = :cpf_login")
     dados = {"cpf_login": cpf_login}
@@ -72,20 +74,20 @@ def logar():
         return e
 
     if user == None:
-        return "Usuário não existe"
+        return {"msg": "Usuário não encontrado"}, 404
 
     senha_hash = user["senha"]
     if bcrypt.check_password_hash(senha_hash, senha):
         acess_token = create_access_token(identity = user["user_id"])
-        return jsonify(acess_token = acess_token)
+        return jsonify(acess_token = acess_token), 200
     
-    return "Senha está incorreta"
+    return {"msg": "Senha incorreta"}, 401
     
 @users_bp.route("/protected", methods=["GET"])
 @jwt_required()
 def protegido():
     user = get_jwt_identity()
-    return jsonify(logged_in_as = user)
+    return jsonify(logged_in_as = user), 200
 
 def criar_tabelas():
     create_all_tables()
