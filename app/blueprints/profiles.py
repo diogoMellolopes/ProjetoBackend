@@ -46,3 +46,22 @@ def atualizar():
     db.session.commit()
 
     return {"msg": "Perfil atualizado com sucesso"}, 200
+
+@profiles_bp.route("/update", methods = ["GET"])
+@jwt_required()
+def visualizar():
+    user_id = get_jwt_identity()
+
+    sql = text("""SELECT user_id, nome, curso_desejado, universidade_desejada, cidade, uf 
+               FROM profiles WHERE user_id = :user_id""")
+    dados = {"user_id": user_id}
+
+    try:
+        result = db.session.execute(sql, dados)
+        relatorio = result.mappings().all()
+        profile = [dict(row) for row in relatorio]
+    
+    except Exception as e:
+        return e
+    
+    return jsonify(profile), 200
