@@ -78,7 +78,7 @@ def logar():
 
     senha_hash = user["senha"]
     if bcrypt.check_password_hash(senha_hash, senha):
-        acess_token = create_access_token(identity = user["user_id"])
+        acess_token = create_access_token(identity = str(user["user_id"]))
         return jsonify(acess_token = acess_token), 200
     
     return {"msg": "Senha incorreta"}, 401

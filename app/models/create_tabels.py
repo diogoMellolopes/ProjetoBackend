@@ -30,9 +30,8 @@ def create_profile():
     universidade_desejada VARCHAR(50),
     uf VARCHAR(2),
     cidade VARCHAR(29),
-    nome VARCHAR(50) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
-        ON DELETE CASCADE
+    nome VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
     )""")
 
     result = db.session.execute(sql)
