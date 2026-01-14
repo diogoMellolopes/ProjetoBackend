@@ -1,6 +1,6 @@
 from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 import os, sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

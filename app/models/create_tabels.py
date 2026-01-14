@@ -42,6 +42,7 @@ def create_profile():
 def create_essays():
     sql = text("""CREATE TABLE IF NOT EXISTS Essays (
     essay_id BIGSERIAL PRIMARY KEY,
+    titulo VARCHAR(50) UNIQUE NOT NULL,
     tema VARCHAR(50) NOT NULL,
     redacao VARCHAR NOT NULL,
     nota VARCHAR,
@@ -60,3 +61,6 @@ def create_all_tables():
     create_user()
     create_profile()
     create_essays()
+
+if __name__ == "__main__":
+    create_all_tables()

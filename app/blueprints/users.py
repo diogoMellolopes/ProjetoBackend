@@ -51,7 +51,7 @@ def registrar():
     db.session.commit()
 
     id = result.fetchone()[0]
-    dados['id'] = id
+    dados["id"] = id
 
     return jsonify(dados), 201
 
