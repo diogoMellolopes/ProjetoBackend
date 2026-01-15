@@ -42,7 +42,7 @@ def create_profile():
 def create_essays():
     sql = text("""CREATE TABLE IF NOT EXISTS Essays (
     essay_id BIGSERIAL PRIMARY KEY,
-    titulo VARCHAR(50) UNIQUE NOT NULL,
+    titulo VARCHAR(50) NOT NULL,
     tema VARCHAR(50) NOT NULL,
     redacao VARCHAR NOT NULL,
     nota VARCHAR,
