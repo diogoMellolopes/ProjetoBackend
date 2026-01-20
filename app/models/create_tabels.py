@@ -13,7 +13,7 @@ def create_user():
     cpf_login VARCHAR(11) NOT NULL UNIQUE, 
     senha VARCHAR NOT NULL, 
     email VARCHAR(50) NOT NULL, 
-    cndb INT
+    cndb TEXT
     )""")
 
     result = db.session.execute(sql)
@@ -49,6 +49,7 @@ def create_essays():
     status BOOLEAN NOT NULL,
     user_id INT NOT NULL,
     avaliacao VARCHAR,
+    data DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
     )""")
 

@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 import os, sys
 
@@ -40,15 +41,15 @@ def registrar():
 
     cndb = request.form.get("cndb", None)
 
-    if cndb == None:
-        sql = text("INSERT INTO users (cpf_login, senha, email) VALUES (:cpf_login, :senha_hash, :email) RETURNING user_id")
-        dados = {"cpf_login": cpf_login, "senha_hash": senha_hash, "email": email}
-    else:
-        sql = text("INSERT INTO users (cpf_login, senha, email, cndb) VALUES (:cpf_login, :senha_hash, :email, :cndb) RETURNING user_id")
-        dados = {"cpf_login": cpf_login, "senha_hash": senha_hash, "email": email, "cndb": cndb}
+    sql = text("INSERT INTO users (cpf_login, senha, email, cndb) VALUES (:cpf_login, :senha_hash, :email, :cndb) RETURNING user_id")
+    dados = {"cpf_login": cpf_login, "senha_hash": senha_hash, "email": email, "cndb": cndb}
 
-    result = db.session.execute(sql, dados)
-    db.session.commit()
+    try:
+        result = db.session.execute(sql, dados)
+        db.session.commit()
+    except IntegrityError as e:
+        db.session.rollback()
+        return "CPF já cadastrado no banco", 400
 
     id = result.fetchone()[0]
     dados["id"] = id

@@ -60,7 +60,6 @@ def visualizar():
         result = db.session.execute(sql, dados)
         relatorio = result.mappings().all()
         profile = [dict(row) for row in relatorio]
-    
     except Exception as e:
         return e
     
