@@ -26,8 +26,8 @@ def postar():
     if len(redacao) <= 50:
         return {"msg": "A redação precisa ter mais de 50 caracteres para ser considerada válida"}, 422
 
-    sql = text("""INSERT INTO essays (titulo, tema, redacao, status, user_id)
-                VALUES (:titulo, :tema, :redacao, :status, :user_id) RETURNING essay_id""")
+    sql = text("""INSERT INTO essays (titulo, tema, redacao, status, user_id, data)
+                VALUES (:titulo, :tema, :redacao, :status, :user_id, CURRENT_DATE) RETURNING essay_id""")
     dados = {"titulo": titulo, "tema": tema, "redacao": redacao, "status": False, "user_id": user_id}
 
     result = db.session.execute(sql, dados)
@@ -43,7 +43,7 @@ def postar():
 def pegar():
     user_id = get_jwt_identity()
 
-    sql = text("""SELECT essay_id, titulo, tema, redacao, status, nota, avaliacao
+    sql = text("""SELECT essay_id, titulo, tema, redacao, status, nota, avaliacao, data
                 FROM essays WHERE user_id = :user_id""")
     dados = {"user_id": user_id}
 
@@ -72,7 +72,7 @@ def deletar(essay_id):
     if result:
         return {"msg": "Redação deletada com sucesso"}, 200
 
-    return {"msg": "Redação não encontrada"}, 404
+    return {"msg": "Redação não encontrada para esse usuário"}, 404
 
 @essays_bp.route("/user_essay/<essay_id>", methods=["PUT"])
 @jwt_required()
@@ -104,10 +104,85 @@ def atualizar(essay_id):
     sql = text("""UPDATE essays SET 
                 titulo = COALESCE(:titulo, titulo),
                 tema = COALESCE(:tema, tema),
-                redacao = COALESCE(:redacao, redacao)
+                redacao = COALESCE(:redacao, redacao),
+                data = CURRENT_DATE
             WHERE user_id = :user_id AND essay_id = :essay_id""")
     dados = {"tema": tema, "redacao": redacao, "user_id": user_id, "titulo": titulo, "essay_id": essay_id}
 
     result = db.session.execute(sql, dados)
     db.session.commit()
     return {"msg": "Redação atualizada com sucesso"}, 200
+
+@essays_bp.route("/note_essay/<essay_id>", methods=["PUT"])
+@jwt_required()
+def avaliar(essay_id):
+    essay_id = essay_id
+    user_id = get_jwt_identity()
+
+    sql = text("""SELECT cndb FROM users WHERE user_id = :user_id""")
+    dados = {"user_id": user_id}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().fetchone()
+
+    if relatorio["cndb"] == None:
+        return {"msg": "Este usuário não pode realizar essa ação"}, 404
+
+    sql = text("""SELECT status FROM essay WHERE essay_id = :essay_id""")
+    dados = {"essay_id": essay_id}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().fetchone()
+
+    if relatorio["status"] == True:
+        return {"msg": "Não pode avaliar uma redação que já foi avaliada"}, 400
+
+    nota = request.form.get("nota")
+    avaliacao = request.form.get("avaliacao")
+
+    if nota == None or avaliacao == None:
+        return {"msg": "Insira todos os dados necessários"}, 400
+
+    try:
+        nota = int(nota)
+        if nota < 0 or nota > 1000:
+            return {"msg": "Insira uma nota válida, entre 0 e 1000"}, 400
+    except ValueError:
+        return {"msg": "A nota deverá ser composta apenas de números"}, 400
+
+    sql = text("""UPDATE essays SET
+                nota = :nota,
+                avaliacao = :avaliacao,
+                status = :status
+                WHERE essay_id = :essay_id""")
+    dados = {"nota": nota, "avaliacao": avaliacao, "status": True, "essay_id": essay_id}
+
+    result = db.session.execute(sql, dados)
+    db.session.commit()
+    
+    return {"msg": "Redação avaliada com sucesso"}, 200
+
+@essays_bp.route("/note_essay", methods=["GET"])
+@jwt_required()
+def visualizar_redacoes():
+    user_id = get_jwt_identity()
+
+    sql = text("""SELECT cndb FROM users WHERE user_id = :user_id""")
+    dados = {"user_id": user_id}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().fetchone()
+
+    if relatorio["cndb"] == None:
+        return {"msg": "Este usuário não pode realizar essa ação"}, 404
+    
+    sql = text("""SELECT essay_id, titulo, tema FROM essay
+                WHERE status = false""")
+
+    result = db.session.execute(sql)
+    relatorio = result.mappings.all()
+    essays = [dict(row) for row in relatorio]
+
+    print(essays)
+    
+    return "ok"

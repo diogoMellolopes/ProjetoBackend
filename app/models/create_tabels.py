@@ -13,7 +13,8 @@ def create_user():
     cpf_login VARCHAR(11) NOT NULL UNIQUE, 
     senha VARCHAR NOT NULL, 
     email VARCHAR(50) NOT NULL, 
-    cndb TEXT
+    cndb TEXT,
+    data_de_criacao DATE
     )""")
 
     result = db.session.execute(sql)
@@ -45,12 +46,12 @@ def create_essays():
     titulo VARCHAR(50) NOT NULL,
     tema VARCHAR(50) NOT NULL,
     redacao VARCHAR NOT NULL,
-    nota VARCHAR,
+    nota INT,
     status BOOLEAN NOT NULL,
     user_id INT NOT NULL,
     avaliacao VARCHAR,
     data DATE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
     )""")
 
     result = db.session.execute(sql)

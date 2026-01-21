@@ -41,7 +41,8 @@ def registrar():
 
     cndb = request.form.get("cndb", None)
 
-    sql = text("INSERT INTO users (cpf_login, senha, email, cndb) VALUES (:cpf_login, :senha_hash, :email, :cndb) RETURNING user_id")
+    sql = text("""INSERT INTO users (cpf_login, senha, email, cndb, data_de_criacao) 
+                VALUES (:cpf_login, :senha_hash, :email, :cndb, CURRENT_DATE) RETURNING user_id""")
     dados = {"cpf_login": cpf_login, "senha_hash": senha_hash, "email": email, "cndb": cndb}
 
     try:
