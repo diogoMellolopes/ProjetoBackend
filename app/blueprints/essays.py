@@ -47,13 +47,9 @@ def pegar():
                 FROM essays WHERE user_id = :user_id""")
     dados = {"user_id": user_id}
 
-    try:
-        result = db.session.execute(sql, dados)
-        relatorio = result.mappings().all()
-        essays = [dict(row) for row in relatorio]
-
-    except Exception as e:
-        return e
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().all()
+    essays = [dict(row) for row in relatorio]
 
     return jsonify(essays), 200
 
@@ -113,7 +109,7 @@ def atualizar(essay_id):
     db.session.commit()
     return {"msg": "Redação atualizada com sucesso"}, 200
 
-@essays_bp.route("/note_essay/<essay_id>", methods=["PUT"])
+@essays_bp.route("/rate_essay/<essay_id>", methods=["PUT"])
 @jwt_required()
 def avaliar(essay_id):
     essay_id = essay_id
@@ -126,9 +122,9 @@ def avaliar(essay_id):
     relatorio = result.mappings().fetchone()
 
     if relatorio["cndb"] == None:
-        return {"msg": "Este usuário não pode realizar essa ação"}, 404
+        return {"msg": "Este usuário não pode realizar essa ação"}, 400
 
-    sql = text("""SELECT status FROM essay WHERE essay_id = :essay_id""")
+    sql = text("""SELECT status FROM essays WHERE essay_id = :essay_id""")
     dados = {"essay_id": essay_id}
 
     result = db.session.execute(sql, dados)
@@ -162,7 +158,7 @@ def avaliar(essay_id):
     
     return {"msg": "Redação avaliada com sucesso"}, 200
 
-@essays_bp.route("/note_essay", methods=["GET"])
+@essays_bp.route("/rate_essay", methods=["GET"])
 @jwt_required()
 def visualizar_redacoes():
     user_id = get_jwt_identity()
@@ -174,15 +170,69 @@ def visualizar_redacoes():
     relatorio = result.mappings().fetchone()
 
     if relatorio["cndb"] == None:
-        return {"msg": "Este usuário não pode realizar essa ação"}, 404
+        return {"msg": "Este usuário não pode realizar essa ação"}, 400
     
-    sql = text("""SELECT essay_id, titulo, tema FROM essay
-                WHERE status = false""")
+    sql = text("""SELECT essay_id, titulo, tema, data FROM essays WHERE status = false
+                ORDER BY data ASC LIMIT 10""")
 
     result = db.session.execute(sql)
-    relatorio = result.mappings.all()
+    relatorio = result.mappings().all()
+    essays = [dict(row) for row in relatorio]
+    
+    return jsonify(essays), 200
+
+@essays_bp.route("/rate_essay/<essay_id>", methods=["GET"])
+@jwt_required()
+def visualizar_redacao(essay_id):
+    user_id = get_jwt_identity()
+
+    sql = text("""SELECT cndb FROM users WHERE user_id = :user_id""")
+    dados = {"user_id": user_id}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().fetchone()
+
+    essay_id = essay_id
+
+    sql = text("SELECT titulo, tema, redacao, status FROM essays WHERE essay_id = :essay_id")
+    dados = {"essay_id": essay_id}
+
+    result = db.session.execute(sql, dados)
+    relatorio = dict(result.mappings().fetchone())
+
+    if relatorio["status"] == True:
+        return "Essa avaliação já foi avaliada", 400
+    
+    return jsonify(relatorio), 200
+
+@essays_bp.route("/see_essay/<essay_id>", methods=["GET"])
+def ver_redacao(essay_id):
+    sql = text("SELECT titulo, tema, redacao, nota, status FROM essays WHERE essay_id = :essay_id")
+    dados = {"essay_id": essay_id}
+
+    result = db.session.execute(sql, dados)
+    relatorio = dict(result.mappings().fetchone())
+
+    if relatorio["status"] == False:
+        return "Essa avaliação ainda não foi avaliada", 400
+
+    return jsonify(relatorio), 200
+
+@essays_bp.route("/all_essay/<page:int>", methods=["GET"])
+def ver_todas_redacoes(page):
+    
+    if page < 0:
+        return "Selecione uma página válida", 404
+
+    page = page * 10
+
+    sql = text("""SELECT titulo, tema, redacao, nota FROM essays
+                WHERE status = True ORDER BY nota DESC
+                LIMIT 10 OFFSET :page""")
+    dados = {"page": page}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().all()
     essays = [dict(row) for row in relatorio]
 
-    print(essays)
-    
-    return "ok"
+    return jsonify(essays), 200
