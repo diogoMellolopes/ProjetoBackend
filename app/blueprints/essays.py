@@ -218,7 +218,7 @@ def ver_redacao(essay_id):
 
     return jsonify(relatorio), 200
 
-@essays_bp.route("/all_essay/<page:int>", methods=["GET"])
+@essays_bp.route("/all_essay/<int:page>", methods=["GET"])
 def ver_todas_redacoes(page):
     
     if page < 0:
