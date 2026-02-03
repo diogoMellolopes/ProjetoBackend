@@ -28,30 +28,79 @@ dashboards_bp = Blueprint('Dashboards', __name__, url_prefix = '/dashboards')
 def ver_estatisticas():
     user_id = get_jwt_identity()
 
-    sql = ( """SELECT avg(nota) FROM essays WHERE user_id = :user_id AND nota > 0""")
+    sql = text("""SELECT avg(nota) as media FROM essays WHERE user_id = :user_id AND nota > 0""")
     dados = {"user_id": user_id}
 
     result = db.session.execute(sql, dados)
-    media = dict(result.mappings().fetchone())
+    relatorio = result.mappings().fetchone()
+    media = relatorio["media"] if relatorio else None
 
-    sql = ("""SELECT nota FROM essays WHERE user_id = :user_id LIMIT 1
-           ORDER BY data DESC""")
+    sql = text("""SELECT nota FROM essays WHERE user_id = :user_id AND nota > 0
+           ORDER BY data DESC LIMIT 1""")
     dados = {"user_id": user_id}
 
     result = db.session.execute(sql, dados)
-    ultima_nota = dict(result.mappings().fetchone())
+    relatorio = result.mappings().fetchone()
+    ultima_nota = relatorio["nota"] if relatorio else None
 
-    if len(media) == 0 or len(ultima_nota):
-        return "Você ainda não tem redações avaliadas", 404
+    if media == None or ultima_nota == None:
+        return {"msg": "Você ainda não tem redações avaliadas"}, 404
 
-    sql = ("""SELECT curso_desejado FROM profiles WHERE user_id = :user_id""")
+    sql = text("""SELECT curso_desejado FROM profiles WHERE user_id = :user_id""")
     dados = {"user_id": user_id}
 
-    return jsonify(media), jsonify(ultima_nota), 200
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().fetchone()
+    curso_desejado = relatorio["curso_desejado"] if relatorio else None
 
-@dashboards_bp.route("/stats/<metric>", methods=["GET"])
+    if curso_desejado != None:
+        curso_desejado = normalizar_nome(curso_desejado)
+        if curso_desejado.lower() in MEDIA_CORTE.keys() and ultima_nota >= MEDIA_CORTE[curso_desejado.lower()]:
+            return {"msg": f"Você passaria com sua nota em {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 200
+        else:
+            return {"msg": f"Você não passaria com sua nota em {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 200
+
+    return {"msg": f"Não foi possivel encontrar o seu curso desejado: {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 404
+
+COLUNAS_VALIDAS = {
+    "uf": "profiles.uf",
+    "city": "profiles.cidade",
+    "target_course": "profiles.curso_desejado",
+    "target_uni": "profiles.universidade_desejada",
+    "tema": "essays.tema"
+}
+
+@dashboards_bp.route("/stats/<metric>/<metric_value>/<int:page>", methods=["GET"])
 @jwt_required()
-def consultar(metric):
-    user_id = get_jwt_identity()
+def consultar(metric, metric_value, page):
+    if metric not in COLUNAS_VALIDAS:
+        return {"msg": "Métrica inválida"}, 400
     
-    sql = ("""""")
+    if page < 0:
+        return {"msg": "Selecione uma página válida"}, 404
+    
+    order = request.args.get("order", "desc").upper()
+    order = "DESC" if order != "ASC" else "ASC"
+    
+    page = page * 10
+    
+    coluna = COLUNAS_VALIDAS[metric]
+    
+    sql = text(f"""SELECT profiles.nome, profiles.user_id, essays.nota FROM profiles
+           JOIN essays on profiles.user_id = essays.user_id
+           WHERE {coluna} = :metric_value AND essays.nota IS NOT NULL
+           ORDER BY essays.nota {order}
+           LIMIT 10 OFFSET :page""")
+    dados = {"metric_value": metric_value, "page": page}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().all()
+    resultado = [dict(row) for row in relatorio]
+
+    if len(relatorio) == 0:
+        return {"msg": "Não há dados suficientes para essa pesquisa"}, 404
+    
+    return jsonify(resultado), 200
+
+def normalizar_nome(nome):
+    return nome.lower().replace(" ", "_")

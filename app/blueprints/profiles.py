@@ -23,6 +23,9 @@ def atualizar():
     nome = request.form.get("nome")
     foto = request.files.get("foto")
 
+    if nome == None:
+        return {"Por favor insira o seu nome obrigatoriamente"}, 400
+
     foto_byte = foto.read() if foto else None
 
     if uf != None and len(uf) != 2:

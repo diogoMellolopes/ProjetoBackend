@@ -201,7 +201,7 @@ def visualizar_redacao(essay_id):
     relatorio = dict(result.mappings().fetchone())
 
     if relatorio["status"] == True:
-        return "Essa avaliação já foi avaliada", 400
+        return {"msg": "Essa avaliação já foi avaliada"}, 400
     
     return jsonify(relatorio), 200
 
@@ -214,7 +214,7 @@ def ver_redacao(essay_id):
     relatorio = dict(result.mappings().fetchone())
 
     if relatorio["status"] == False:
-        return "Essa avaliação ainda não foi avaliada", 400
+        return {"msg": "Essa avaliação ainda não foi avaliada"}, 400
 
     return jsonify(relatorio), 200
 
@@ -222,7 +222,7 @@ def ver_redacao(essay_id):
 def ver_todas_redacoes(page):
     
     if page < 0:
-        return "Selecione uma página válida", 404
+        return {"msg": "Selecione uma página válida"}, 404
 
     page = page * 10
 
