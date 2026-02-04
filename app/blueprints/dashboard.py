@@ -2,6 +2,7 @@ from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
 from flask_jwt_extended import get_jwt_identity, jwt_required
 import os, sys
+import re
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,7 +45,7 @@ def ver_estatisticas():
     ultima_nota = relatorio["nota"] if relatorio else None
 
     if media == None or ultima_nota == None:
-        return {"msg": "Você ainda não tem redações avaliadas"}, 404
+        return {"msg": "Você ainda não tem redações avaliadas"}, 400
 
     sql = text("""SELECT curso_desejado FROM profiles WHERE user_id = :user_id""")
     dados = {"user_id": user_id}
@@ -55,12 +56,22 @@ def ver_estatisticas():
 
     if curso_desejado != None:
         curso_desejado = normalizar_nome(curso_desejado)
-        if curso_desejado.lower() in MEDIA_CORTE.keys() and ultima_nota >= MEDIA_CORTE[curso_desejado.lower()]:
-            return {"msg": f"Você passaria com sua nota em {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 200
-        else:
-            return {"msg": f"Você não passaria com sua nota em {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 200
+        if curso_desejado in MEDIA_CORTE.keys():
+            diff = ultima_nota - MEDIA_CORTE[curso_desejado]
+            if diff < -100:
+                return {"msg": f"Você precisa estudar mais. A nota de corte de {curso_desejado} é {MEDIA_CORTE[curso_desejado]}.", "media": media,
+                "ultima_nota": ultima_nota, "nota_de_corte": MEDIA_CORTE[curso_desejado]}, 200
+            elif diff > -100 and diff < -50:
+                return {"msg": f"Você está quase lá. A nota de corte de {curso_desejado} é {MEDIA_CORTE[curso_desejado]}.", "media": media,
+                "ultima_nota": ultima_nota, "nota_de_corte": MEDIA_CORTE[curso_desejado]}, 200
+            elif diff > -50 and diff < 0:
+                return {"msg": f"Você está muito perto. A nota de corte de {curso_desejado} é {MEDIA_CORTE[curso_desejado]}.", "media": media,
+                "ultima_nota": ultima_nota, "nota_de_corte": MEDIA_CORTE[curso_desejado]}, 200
+            else:
+                return {"msg": f"Parabéns, você passaria com essa nota. A nota de corte de {curso_desejado} é {MEDIA_CORTE[curso_desejado]}",
+                "media": media, "ultima_nota": ultima_nota, "nota_de_corte": MEDIA_CORTE[curso_desejado]}, 200 
 
-    return {"msg": f"Não foi possivel encontrar o seu curso desejado: {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 404
+        return {"msg": f"Não foi possivel encontrar o seu curso desejado: {curso_desejado}", "media": media, "ultima_nota": ultima_nota}, 404
 
 COLUNAS_VALIDAS = {
     "uf": "profiles.uf",
@@ -78,11 +89,10 @@ def consultar(metric, metric_value, page):
     
     if page < 0:
         return {"msg": "Selecione uma página válida"}, 404
-    
+    page = page * 10
+
     order = request.args.get("order", "desc").upper()
     order = "DESC" if order != "ASC" else "ASC"
-    
-    page = page * 10
     
     coluna = COLUNAS_VALIDAS[metric]
     
@@ -102,5 +112,54 @@ def consultar(metric, metric_value, page):
     
     return jsonify(resultado), 200
 
+@dashboards_bp.route("/stats/date/<int:page>", methods=["GET"])
+@jwt_required()
+def consultar_data(page):
+    if page < 0:
+        return {"msg": "Selecione uma página válida"}, 404
+    page = page * 10
+
+    order = request.args.get("order", "desc").upper()
+    order = "DESC" if order != "ASC" else "ASC"
+
+    date_start = request.args.get("date_start", "01/01/0001")
+    date_end = request.args.get("date_end", "12/12/9999")
+
+    date_start = normalizar_data(date_start)
+    date_end = normalizar_data(date_end)
+
+    if date_start == False or date_end == False:
+        return {"msg": "Insira uma data válida nesse formato: aaaa/mm/dd"}, 400
+
+    sql = text(f"""SELECT profiles.nome, profiles.user_id, essays.nota FROM profiles
+            JOIN essays on profiles.user_id = essays.user_id
+            WHERE date >= :date_start AND date_end <= :date_end AND essays.nota IS NOT NULL
+            ORDER BY essays.nota {order}
+            LIMIT 10 OFFSET :page""")
+    dados = {"date_start": date_start, "date_end": date_end, "page": page}
+
+    result = db.session.execute(sql, dados)
+    relatorio = result.mappings().all()
+    resultado = [dict(row) for row in relatorio]
+
+    if len(relatorio) == 0:
+        return {"msg": "Não há dados suficientes para essa pesquisa"}, 404
+
+    return jsonify(resultado), 200
+
 def normalizar_nome(nome):
     return nome.lower().replace(" ", "_")
+
+def normalizar_data(data):
+    data = data.replace("/", "-")
+    x = re.search(r"....-..-..", data)
+
+    if x == None:
+        return False
+    
+    year = re.search(r"....-", data)
+    monthDay = re.findall(r"-..", data)
+    month = monthDay[0]
+    day = monthDay[1]
+
+    return day + "-" + month + "-" + year
