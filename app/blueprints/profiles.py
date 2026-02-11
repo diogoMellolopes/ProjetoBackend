@@ -24,12 +24,12 @@ def atualizar():
     foto = request.files.get("foto")
 
     if nome == None:
-        return {"Por favor insira o seu nome obrigatoriamente"}, 400
+        return {"msg": "Por favor insira o seu nome obrigatoriamente"}, 400
 
     foto_byte = foto.read() if foto else None
 
     if uf != None and len(uf) != 2:
-        return {"msg": "UF deve ter exatemente duas linhas"}, 400
+        return {"msg": "UF deve ter exatamente duas linhas, EX.: RS"}, 400
 
     sql = text("""INSERT INTO profiles (user_id, nome, curso_desejado, universidade_desejada, cidade, uf, foto_perfil)
                VALUES (:user_id, :nome, :curso_desejado, :universidade_desejada, :cidade, :uf, :foto_perfil)

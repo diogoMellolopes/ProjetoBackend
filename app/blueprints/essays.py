@@ -24,7 +24,7 @@ def postar():
         return {"msg": "Insira todas as informações necessárias"}, 400
 
     if len(redacao) <= 50:
-        return {"msg": "A redação precisa ter mais de 50 caracteres para ser considerada válida"}, 422
+        return {"msg": "A redação precisa ter mais de 50 caracteres para ser considerada válida"}, 400
 
     sql = text("""INSERT INTO essays (titulo, tema, redacao, status, user_id, data)
                 VALUES (:titulo, :tema, :redacao, :status, :user_id, CURRENT_DATE) RETURNING essay_id""")

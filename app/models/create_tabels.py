@@ -61,7 +61,7 @@ def create_essays():
 
 def create_courses():
     sql = text("""CREATE TABLE IF NOT EXISTS Courses (
-    course_id SERIAL PRIMARY KEY
+    course_id SERIAL PRIMARY KEY,
     nome_curso VARCHAR NOT NULL,
     nota_curso INT NOT NULL
     )""")
@@ -72,22 +72,28 @@ def create_courses():
 def populate_courses():
     sql = text("""INSERT INTO Courses (nome_curso, nota_curso)
                 VALUES
-                (medicina, 810),
-                (ciencia_da_computacao, 760),
-                (direito, 710),
-                (medicina_veterinaria, 720),
-                (administracao, 570),
-                (biblioteconomia, 660),
-                (lingua_estrangeira, 580),
-                (letras, 620),
+                ('medicina', 810),
+                ('ciencia_da_computacao', 760),
+                ('direito', 710),
+                ('medicina_veterinaria', 720),
+                ('administracao', 570),
+                ('biblioteconomia', 660),
+                ('lingua_estrangeira', 580),
+                ('letras', 620),
+                ('pedagogia', 650),
+                ('matematica', 680),
+                ('historia', 590)
                 """)
+    
+    result = db.session.execute(sql)
+    db.session.commit()
 
 def create_all_tables():
+    create_courses()
+    populate_courses()
     create_user()
     create_profile()
     create_essays()
-    create_courses()
-    populate_courses()
 
 if __name__ == "__main__":
     create_all_tables()

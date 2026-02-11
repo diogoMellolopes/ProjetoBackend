@@ -10,17 +10,10 @@ DB_PATH = os.path.abspath(os.path.join(BASE_DIR, '..'))
 sys.path.append(DB_PATH)
 from connect import db, bcrypt, jwt
 
-MODELS_PATH = os.path.abspath(os.path.join(DB_PATH, '..'))
-MODELS_PATH = os.path.abspath(os.path.join(MODELS_PATH, "app", "models"))
-sys.path.append(MODELS_PATH)
-from create_tabels import create_all_tables
-
 users_bp = Blueprint('Users', __name__, url_prefix = '/users')
 
 @users_bp.route("/register", methods = ["POST"])
 def registrar():
-    criar_tabelas()
-
     cpf_login = request.form.get("cpf")
     senha = request.form.get("senha")
     email = request.form.get("email")
@@ -90,6 +83,3 @@ def logar():
 def protegido():
     user = get_jwt_identity()
     return jsonify(logged_in_as = user), 200
-
-def criar_tabelas():
-    create_all_tables()
