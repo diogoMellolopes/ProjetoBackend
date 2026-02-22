@@ -17,9 +17,8 @@ app.register_blueprint(profiles_bp)
 app.register_blueprint(essays_bp)
 app.register_blueprint(dashboards_bp)
 
-@app.cli.command("create-db")
-def create_db():
-    create_tabels.create_all_tables()
-
 if __name__ == "__main__": 
+    with app.app_context():
+        create_tabels.create_all_tables()
+
     app.run(debug=True) 

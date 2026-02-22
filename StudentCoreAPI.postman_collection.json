@@ -1,0 +1,716 @@
+{
+  "info": {
+    "_postman_id": "4cb6f75a-7a48-403d-ab62-449de214b07f",
+    "name": "StudentCoreAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48293613"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "/register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cpf",
+                  "value": "05494946002",
+                  "type": "text",
+                  "uuid": "18523645-a4da-479b-b641-91f35d87e99a"
+                },
+                {
+                  "key": "senha",
+                  "value": "garototo01",
+                  "type": "text",
+                  "uuid": "4768ca4f-a27a-4eb4-9a3f-e73f0373b266"
+                },
+                {
+                  "key": "email",
+                  "value": "diogomello451@gmail.com",
+                  "type": "text",
+                  "uuid": "47fac34b-1de8-4635-8582-71c9b86cc633"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"token\", jsonData.acess_token)"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cpf",
+                  "value": "05494946002",
+                  "type": "text",
+                  "uuid": "18523645-a4da-479b-b641-91f35d87e99a"
+                },
+                {
+                  "key": "senha",
+                  "value": "garototo01",
+                  "type": "text",
+                  "uuid": "4768ca4f-a27a-4eb4-9a3f-e73f0373b266"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/protected",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/users/protected",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "protected"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "/update",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "curso_desejado",
+                  "value": "medicina",
+                  "type": "text",
+                  "uuid": "51f8a8d6-95f7-46ef-a4f8-07fc51aab23f"
+                },
+                {
+                  "key": "universidade_desejada",
+                  "value": "ufrgs",
+                  "type": "text",
+                  "uuid": "0375ee91-334f-41d4-bc42-b0a6745e69da"
+                },
+                {
+                  "key": "uf",
+                  "value": "rs",
+                  "type": "text",
+                  "uuid": "a03bf07b-0564-44a5-b47e-d427335254b3"
+                },
+                {
+                  "key": "cidade",
+                  "value": "canoas",
+                  "type": "text",
+                  "uuid": "4edaf5f0-de69-42ec-8d40-1019106946c7"
+                },
+                {
+                  "key": "nome",
+                  "value": "diogo",
+                  "type": "text",
+                  "uuid": "a4dbaf66-a857-4c13-b253-fe9752e7586b"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/profiles/update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/update",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/profiles/update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profiles",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Essays",
+      "item": [
+        {
+          "name": "/user_essay",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "A história de um pato amarelo",
+                  "type": "text",
+                  "uuid": "eabdbc90-c603-4a73-a6a1-83b7e97322ff"
+                },
+                {
+                  "key": "tema",
+                  "value": "Travessia do rio nilo",
+                  "type": "text",
+                  "uuid": "2a5e05f1-921b-472a-9089-dbc218dd135f"
+                },
+                {
+                  "key": "redacao",
+                  "value": "O pato, atravessou o rio, ao chegar do outro lado, teve que voltar, pois havia esquecido seus filhotes, quando voltou, o rio transbordou, então teve que nadar mais do que o comum, mas conseguiu chegar com sucesso, levando os seus filhotes para emigrar pro rio tigre",
+                  "type": "text",
+                  "uuid": "c52f2594-bf41-46fa-89a5-970f716a0d32"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/user_essay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "user_essay"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/user_essay",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/user_essay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "user_essay"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/user_essay",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/user_essay/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "user_essay",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/user_essay",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "tema",
+                  "value": "Travessia",
+                  "type": "text",
+                  "uuid": "cdf53937-41f1-4124-8a2b-a8223823fa83"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/user_essay/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "user_essay",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/rate_essay",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nota",
+                  "value": "920",
+                  "type": "text",
+                  "uuid": "85decdf0-6176-4e7c-8fb9-f039f8f54297"
+                },
+                {
+                  "key": "avaliacao",
+                  "value": "Muito bom",
+                  "type": "text",
+                  "uuid": "a6f7352f-9c15-4537-94b7-8ff2bf851f30"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/rate_essay/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "rate_essay",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/rate_essay",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/rate_essay/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "rate_essay",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/see_essay",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/essay/see_essay/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "see_essay",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/all_essay",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/essay/all_essay/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "all_essay",
+                "0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/rate_essay",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/essay/rate_essay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "essay",
+                "rate_essay"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboards",
+      "item": [
+        {
+          "name": "/stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboards/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboards",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/stats/metric",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboards/stats/uf/rs/0?order=ASC",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboards",
+                "stats",
+                "uf",
+                "rs",
+                "0"
+              ],
+              "query": [
+                {
+                  "key": "order",
+                  "value": "ASC"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/stats/date",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboards/stats/date/0?order=ASC&date_start=01/01/1999&date_end=01/01/2027",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboards",
+                "stats",
+                "date",
+                "0"
+              ],
+              "query": [
+                {
+                  "key": "order",
+                  "value": "ASC"
+                },
+                {
+                  "key": "date_start",
+                  "value": "01/01/1999"
+                },
+                {
+                  "key": "date_end",
+                  "value": "01/01/2027"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "pm.test(\"Status code is 200\", function () {\r",
+          "    pm.response.to.have.status(200);\r",
+          "});\r",
+          "\r",
+          "var jsonData = pm.response.json();\r",
+          "pm.environment.set(\"token\", jsonData.acess_token);"
+        ]
+      }
+    }
+  ]
+}

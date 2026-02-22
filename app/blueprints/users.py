@@ -82,4 +82,4 @@ def logar():
 @jwt_required()
 def protegido():
     user = get_jwt_identity()
-    return jsonify(logged_in_as = user), 200
+    return jsonify(logged_in_as = user), 200    

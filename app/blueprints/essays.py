@@ -80,9 +80,6 @@ def atualizar(essay_id):
     tema = request.form.get("tema")
     redacao = request.form.get("redacao")
 
-    if titulo == None:
-        return {"msg": "Insira o título da redação"}, 400
-
     sql = text("""SELECT status, titulo FROM essays 
                WHERE user_id = :user_id AND essay_id = :essay_id""")
     dados = {"user_id": user_id, "essay_id": essay_id}
@@ -173,7 +170,7 @@ def visualizar_redacoes():
         return {"msg": "Este usuário não pode realizar essa ação"}, 400
     
     sql = text("""SELECT essay_id, titulo, tema, data FROM essays WHERE status = false
-                ORDER BY data ASC LIMIT 10""")
+                ORDER BY data ASC LIMIT 5""")
 
     result = db.session.execute(sql)
     relatorio = result.mappings().all()
