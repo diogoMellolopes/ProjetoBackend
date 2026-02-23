@@ -4,21 +4,22 @@ from flask_jwt_extended import JWTManager
 import os
 
 bcrypt = Bcrypt()
+db = SQLAlchemy()
+jwt = JWTManager()
 
 def init_bcrypt(app):
     bcrypt.init_app(app)
 
-db = SQLAlchemy()
-
 def init_db(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:123@localhost:5432/student_core_db'
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:123@localhost:5432/postgres'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    database_url = os.getenv("DATABASE_URL")
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
 
-jwt = JWTManager()
-
 def init_jwt(app):
-    app.config["JWT_SECRET_KEY"] = "bolo"
+    jwt_secret = os.getenv("JWT_SECRET_KEY")
+
+    app.config["JWT_SECRET_KEY"] = jwt_secret
     jwt.init_app(app)

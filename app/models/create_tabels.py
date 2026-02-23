@@ -1,11 +1,5 @@
-import sys, os
 from sqlalchemy import text
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DB_PATH = os.path.abspath(os.path.join(BASE_DIR, '..'))
-sys.path.append(DB_PATH)
-from connect import db
+from app.connect import db
 
 def create_user():
     sql = text("""CREATE TABLE IF NOT EXISTS Users (
@@ -45,11 +39,11 @@ def create_essays():
     essay_id BIGSERIAL PRIMARY KEY,
     titulo VARCHAR(100) NOT NULL,
     tema VARCHAR(100) NOT NULL,
-    redacao VARCHAR NOT NULL,
+    redacao TEXT NOT NULL,
     nota INT,
     status BOOLEAN NOT NULL,
     user_id INT NOT NULL,
-    avaliacao VARCHAR,
+    avaliacao TEXT,
     data DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
     )""")

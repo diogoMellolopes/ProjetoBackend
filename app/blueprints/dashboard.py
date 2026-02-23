@@ -5,9 +5,7 @@ import os, sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = os.path.abspath(os.path.join(BASE_DIR, '..'))
-sys.path.append(DB_PATH)
-from connect import db, jwt
+from app.connect import db
 
 dashboards_bp = Blueprint('Dashboards', __name__, url_prefix = '/dashboards')
 
@@ -56,10 +54,10 @@ def ver_estatisticas():
             if diff < -100:
                 return {"msg": f"Você precisa estudar mais. A nota de corte de {curso_desejado} é {nota_curso}.", "media": media,
                 "ultima_nota": ultima_nota, "nota_de_corte": nota_curso}, 200
-            elif diff > -100 and diff < -50:
+            elif -100 <= diff < -50:
                 return {"msg": f"Você está quase lá. A nota de corte de {curso_desejado} é {nota_curso}.", "media": media,
                 "ultima_nota": ultima_nota, "nota_de_corte":  nota_curso}, 200
-            elif diff > -50 and diff < 0:
+            elif -50 <= diff < 0:
                 return {"msg": f"Você está muito perto. A nota de corte de {curso_desejado} é {nota_curso}.", "media": media,
                 "ultima_nota": ultima_nota, "nota_de_corte": nota_curso}, 200
             else:
@@ -169,4 +167,4 @@ def normalizar_data(data):
     if day < 0 or day > 31:
         return False
     
-    return str(day) + "-" + str(month) + "-" + str(year)
+    return f"{day:02d}-{month:02d}-{year:02d}"

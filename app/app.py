@@ -17,8 +17,8 @@ app.register_blueprint(profiles_bp)
 app.register_blueprint(essays_bp)
 app.register_blueprint(dashboards_bp)
 
-if __name__ == "__main__": 
+try:
     with app.app_context():
         create_tabels.create_all_tables()
-
-    app.run(debug=True) 
+except Exception as e:
+    print("Erro ao criar tabelas:", e)

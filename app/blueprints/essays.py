@@ -1,13 +1,8 @@
 from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
 from flask_jwt_extended import get_jwt_identity, jwt_required
-import os, sys
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DB_PATH = os.path.abspath(os.path.join(BASE_DIR, '..'))
-sys.path.append(DB_PATH)
-from connect import db, jwt
+from app.connect import db
 
 essays_bp = Blueprint('Essays', __name__, url_prefix = '/essay')
 
@@ -53,7 +48,7 @@ def pegar():
 
     return jsonify(essays), 200
 
-@essays_bp.route("/user_essay/<essay_id>", methods=["DELETE"])
+@essays_bp.route("/user_essay/<int:essay_id>", methods=["DELETE"])
 @jwt_required()
 def deletar(essay_id):
     user_id = get_jwt_identity()
@@ -70,7 +65,7 @@ def deletar(essay_id):
 
     return {"msg": "Redação não encontrada para esse usuário"}, 404
 
-@essays_bp.route("/user_essay/<essay_id>", methods=["PUT"])
+@essays_bp.route("/user_essay/<int:essay_id>", methods=["PUT"])
 @jwt_required()
 def atualizar(essay_id):
     user_id = get_jwt_identity()
@@ -106,7 +101,7 @@ def atualizar(essay_id):
     db.session.commit()
     return {"msg": "Redação atualizada com sucesso"}, 200
 
-@essays_bp.route("/rate_essay/<essay_id>", methods=["PUT"])
+@essays_bp.route("/rate_essay/<int:essay_id>", methods=["PUT"])
 @jwt_required()
 def avaliar(essay_id):
     essay_id = essay_id
@@ -118,6 +113,9 @@ def avaliar(essay_id):
     result = db.session.execute(sql, dados)
     relatorio = result.mappings().fetchone()
 
+    if not relatorio:
+        return {"msg": "Usuário não encontrado"}, 404
+
     if relatorio["cndb"] == None:
         return {"msg": "Este usuário não pode realizar essa ação"}, 400
 
@@ -126,6 +124,9 @@ def avaliar(essay_id):
 
     result = db.session.execute(sql, dados)
     relatorio = result.mappings().fetchone()
+
+    if not relatorio:
+        return {"msg": "Usuário não encontrado"}, 404
 
     if relatorio["status"] == True:
         return {"msg": "Não pode avaliar uma redação que já foi avaliada"}, 400
@@ -166,6 +167,9 @@ def visualizar_redacoes():
     result = db.session.execute(sql, dados)
     relatorio = result.mappings().fetchone()
 
+    if not relatorio:
+        return {"msg": "Usuário não encontrado"}, 404
+
     if relatorio["cndb"] == None:
         return {"msg": "Este usuário não pode realizar essa ação"}, 400
     
@@ -178,7 +182,7 @@ def visualizar_redacoes():
     
     return jsonify(essays), 200
 
-@essays_bp.route("/rate_essay/<essay_id>", methods=["GET"])
+@essays_bp.route("/rate_essay/<int:essay_id>", methods=["GET"])
 @jwt_required()
 def visualizar_redacao(essay_id):
     user_id = get_jwt_identity()
@@ -188,6 +192,12 @@ def visualizar_redacao(essay_id):
 
     result = db.session.execute(sql, dados)
     relatorio = result.mappings().fetchone()
+    
+    if not relatorio:
+        return {"msg": "Usuário não encontrado"}, 404
+
+    if relatorio["cndb"] == None:
+        return {"msg": "Este usuário não pode realizar essa ação"}, 400
 
     essay_id = essay_id
 
@@ -195,20 +205,30 @@ def visualizar_redacao(essay_id):
     dados = {"essay_id": essay_id}
 
     result = db.session.execute(sql, dados)
-    relatorio = dict(result.mappings().fetchone())
+    row = result.mappings().fetchone()
+
+    if not row:
+        return {"msg": "Redação não encontrada"}, 404
+
+    relatorio = dict(row)
 
     if relatorio["status"] == True:
         return {"msg": "Essa avaliação já foi avaliada"}, 400
     
     return jsonify(relatorio), 200
 
-@essays_bp.route("/see_essay/<essay_id>", methods=["GET"])
+@essays_bp.route("/see_essay/<int:essay_id>", methods=["GET"])
 def ver_redacao(essay_id):
     sql = text("SELECT titulo, tema, redacao, nota, status FROM essays WHERE essay_id = :essay_id")
     dados = {"essay_id": essay_id}
 
     result = db.session.execute(sql, dados)
-    relatorio = dict(result.mappings().fetchone())
+    row = result.mappings().fetchone()
+
+    if not row:
+        return {"msg": "Redação não encontrada"}, 404
+
+    relatorio = dict(row)
 
     if relatorio["status"] == False:
         return {"msg": "Essa avaliação ainda não foi avaliada"}, 400

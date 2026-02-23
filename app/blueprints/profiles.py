@@ -1,13 +1,8 @@
 from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
 from flask_jwt_extended import get_jwt_identity, jwt_required
-import os, sys
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DB_PATH = os.path.abspath(os.path.join(BASE_DIR, '..'))
-sys.path.append(DB_PATH)
-from connect import db, jwt
+from app.connect import db, jwt
 
 profiles_bp = Blueprint('Profiles', __name__, url_prefix = '/profiles')
 
@@ -64,6 +59,6 @@ def visualizar():
         relatorio = result.mappings().all()
         profile = [dict(row) for row in relatorio]
     except Exception as e:
-        return e
+        return {"msg": "Erro ao buscar perfil"}, 500
     
     return jsonify(profile), 200

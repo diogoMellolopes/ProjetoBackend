@@ -2,13 +2,7 @@ from flask import Flask, Blueprint, request, jsonify
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
-import os, sys
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DB_PATH = os.path.abspath(os.path.join(BASE_DIR, '..'))
-sys.path.append(DB_PATH)
-from connect import db, bcrypt, jwt
+from app.connect import db, bcrypt
 
 users_bp = Blueprint('Users', __name__, url_prefix = '/users')
 
@@ -21,14 +15,8 @@ def registrar():
     if cpf_login == None or senha == None or email == None:
         return {"msg": "Insira todos os dados necessários"}, 400
 
-    if len(cpf_login) != 11:
-        return {"msg": "O CPF deve conter 11 dígitos"}, 400
-
-    for i in cpf_login:
-        try:
-            int(i)
-        except:
-            return {"msg": "O CPF deve ser composto apenas de números"}, 400
+    if len(cpf_login) != 11 or not cpf_login.isdigit():
+        return {"msg": "O CPF inválido"}, 400
         
     senha_hash = bcrypt.generate_password_hash(senha).decode("utf-8")
 
@@ -40,15 +28,13 @@ def registrar():
 
     try:
         result = db.session.execute(sql, dados)
+        user_id = result.fetchone()[0]
         db.session.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         db.session.rollback()
-        return "CPF já cadastrado no banco", 400
+        return {"msg": "CPF já cadastrado no banco"}, 400
 
-    id = result.fetchone()[0]
-    dados["id"] = id
-
-    return jsonify(dados), 201
+    return jsonify({"msg": "Usuário criado com sucesso", "user_id": user_id}), 201
 
 @users_bp.route("/login", methods = ["POST"])
 def logar():
@@ -61,16 +47,12 @@ def logar():
     sql = text("SELECT user_id, cpf_login, senha FROM Users WHERE cpf_login = :cpf_login")
     dados = {"cpf_login": cpf_login}
 
-    try:
-        result = db.session.execute(sql, dados)
-        user = result.mappings().first()
-
-    except Exception as e:
-        return e
+    result = db.session.execute(sql, dados)
+    user = result.mappings().first()
 
     if user == None:
         return {"msg": "Usuário não encontrado"}, 404
-
+    
     senha_hash = user["senha"]
     if bcrypt.check_password_hash(senha_hash, senha):
         acess_token = create_access_token(identity = str(user["user_id"]))
