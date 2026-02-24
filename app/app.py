@@ -1,11 +1,10 @@
 from flask import Flask
-from connect import init_db, init_bcrypt, init_jwt
-from models import create_tabels
-
-from blueprints.users import users_bp
-from blueprints.profiles import profiles_bp
-from blueprints.essays import essays_bp
-from blueprints.dashboard import dashboards_bp
+from app.connect import init_db, init_bcrypt, init_jwt
+from app.models import create_tabels
+from app.blueprints.users import users_bp
+from app.blueprints.profiles import profiles_bp
+from app.blueprints.essays import essays_bp
+from app.blueprints.dashboard import dashboards_bp
 
 app = Flask(__name__) 
 init_db(app) 

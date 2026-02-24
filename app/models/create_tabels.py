@@ -90,6 +90,3 @@ def create_all_tables():
     create_user()
     create_profile()
     create_essays()
-
-if __name__ == "__main__":
-    create_all_tables()
