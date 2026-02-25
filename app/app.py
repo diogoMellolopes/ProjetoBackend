@@ -16,6 +16,10 @@ app.register_blueprint(profiles_bp)
 app.register_blueprint(essays_bp)
 app.register_blueprint(dashboards_bp)
 
+@app.route("/")
+def home():
+    return {"status": "API online"}, 200
+
 try:
     with app.app_context():
         create_tabels.create_all_tables()
