@@ -13,25 +13,6 @@ API para gestão de desempenho acadêmico e envio de redações com autenticaç�
 - Gunicorn
 - Render (Deploy)
 
-## Estrutura do projeto:
-ProjetoBackend/
-│
-├── app/
-│ ├── init.py
-│ ├── app.py
-│ ├── connect.py
-│ │
-│ ├── blueprints/
-│ │ ├── users.py
-│ │ ├── profiles.py
-│ │ ├── essays.py
-│ │ └── dashboard.py
-│ │
-│ └── models/
-│ └── create_tables.py
-│
-└── requirements.txt
-
 ---
 
 ## Autenticação:
