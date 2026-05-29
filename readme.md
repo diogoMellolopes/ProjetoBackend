@@ -1,6 +1,7 @@
 # Student Core - API RESTful
 
 API para gestão de desempenho acadêmico e envio de redações com autenticação JWT e informações relevantes.
+Projeto desenvolvido ao longo da bolsa concedida pelo Instituto Hardware e dentro do ambiente do IF de Canoas.
 
 ---
 
